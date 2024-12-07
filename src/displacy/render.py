@@ -42,11 +42,11 @@ DEFAULT_LABEL_COLORS = {
 }
 
 
+# pylint: disable-next=too-many-instance-attributes
 class SpanRenderer:
     """Render Spans as SVGs."""
 
-    style = "span"
-
+    # pylint: disable-next=dangerous-default-value
     def __init__(self, options: dict[str, Any] = {}) -> None:
         """Initialise span renderer
 
@@ -149,8 +149,8 @@ class SpanRenderer:
         """Assembles token info used to generate markup in render_spans().
         tokens (List[str]): Tokens in text.
         spans (List[Dict[str, Any]]): Spans in text.
-        RETURNS (List[Dict[str, List[Dict, str, Any]]]): Per token info needed to render HTML markup for given tokens
-            and spans.
+        RETURNS (List[Dict[str, List[Dict, str, Any]]]): Per token info needed
+            to render HTML markup for given tokens and spans.
         """
         per_token_info: list[dict[str, list[dict[str, Any]]]] = []
 

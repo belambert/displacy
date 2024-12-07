@@ -18,6 +18,7 @@ _html = {}
 RENDER_WRAPPER = None
 
 
+# pylint: disable-next=dangerous-default-value
 def render(
     docs: Union[Iterable[Union[Doc, Span, dict]], Doc, Span, dict],
     style: str = "dep",
@@ -65,6 +66,7 @@ def render(
     return html
 
 
+# pylint: disable-next=dangerous-default-value
 def serve(
     docs: Union[Iterable[Doc], Doc],
     style: str = "dep",
@@ -116,6 +118,7 @@ def app(environ, start_response):
     return [res]
 
 
+# pylint: disable-next=dangerous-default-value
 def parse_deps(
     orig_doc: Union[Doc, Span], options: dict[str, Any] = {}
 ) -> dict[str, Any]:
@@ -184,6 +187,7 @@ def parse_deps(
     return {"words": words, "arcs": arcs, "settings": get_doc_settings(orig_doc)}
 
 
+# pylint: disable-next=dangerous-default-value
 def parse_ents(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
     """Generate named entities in [{start: i, end: i, label: 'label'}] format.
 
@@ -209,6 +213,7 @@ def parse_ents(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
     return {"text": doc.text, "ents": ents, "title": title, "settings": settings}
 
 
+# pylint: disable-next=dangerous-default-value
 def parse_spans(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
     """Generate spans in [{start_token: i, end_token: i, label: 'label'}] format.
 

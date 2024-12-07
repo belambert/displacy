@@ -149,26 +149,18 @@ class SpanRenderer:
             markup = TPL_TITLE.format(title=title) + markup
         return markup
 
-    # the return value from this function looks like this:
-    # {'text': 'Welcome', 'entities': []}
-    # {'text': 'to', 'entities': []}
-    # {'text': 'the', 'entities': []}
-    # {'text': 'Bank', 'entities': [{'label': 'ORG', 'is_start': True, 'render_slot': 1, 'kb_link': ''}]}
-    # {'text': 'of', 'entities': [{'label': 'ORG', 'is_start': False, 'render_slot': 1, 'kb_link': ''}]}
-    # {'text': 'China', 'entities': [{'label': 'ORG', 'is_start': False, 'render_slot': 1, 'kb_link': ''}, {'label': 'GPE', 'is_start': True, 'render_slot': 2, 'kb_link': ''}]}
-    # {'text': '.', 'entities': []}
-
     @staticmethod
     def _assemble_per_token_info(
         tokens: list[str], spans: list[dict[str, Any]]
-    ) -> list[dict[str, list[dict[str, Any]]]]:
+    ) -> list[TokenInfo]:
         """Assembles token info used to generate markup in render_spans().
         tokens (List[str]): Tokens in text.
         spans (List[Dict[str, Any]]): Spans in text.
         RETURNS (List[Dict[str, List[Dict, str, Any]]]): Per token info needed
             to render HTML markup for given tokens and spans.
         """
-        per_token_info: list[dict[str, list[dict[str, Any]]]] = []
+        # per_token_info: list[dict[str, list[dict[str, Any]]]] = []
+        per_token_info = []
 
         # we must sort so that we can correctly describe when spans need to "stack"
         # which is determined by their start token, then span length (longer spans on top),
@@ -191,8 +183,8 @@ class SpanRenderer:
         for idx, token in enumerate(tokens):
             # Identify if a token belongs to a Span (and which) and if it's a
             # start token of said Span. We'll use this for the final HTML render
-            token_markup: dict[str, Any] = {}
-            token_markup["text"] = token
+            # token_markup: dict[str, Any] = {}
+            # token_markup["text"] = token
             intersecting_spans: list[dict[str, Any]] = []
             entities = []
             for span in spans:
@@ -224,6 +216,7 @@ class SpanRenderer:
                         render_slot=span["render_slot"],
                         kb_id=span.get("kb_id", ""),
                         kb_url=span.get("kb_url", "#"),
+                        kb_link="",
                     )
                     entities.append(ent)
                 else:
@@ -233,41 +226,43 @@ class SpanRenderer:
                     # but if we were to use these spans again we'd want to make sure
                     # this value was reset correctly.
                     span["render_slot"] = 0
-            token_markup["entities"] = entities
+            # token_markup["entities"] = entities
             token_markup = TokenInfo(text=token, entities=entities)
             per_token_info.append(token_markup)
-        for token in per_token_info:
-            print(token)
+        for x in per_token_info:
+            print(x)
         return per_token_info
 
-    def _render_markup(self, per_token_info: list[dict[str, Any]]) -> str:
+    # def _render_markup(self, per_token_info: list[dict[str, Any]]) -> str:
+    def _render_markup(self, per_token_info: list[TokenInfo]) -> str:
         """Render the markup from per-token information"""
         markup = ""
         for token in per_token_info:
-            entities = sorted(token["entities"], key=lambda d: d["render_slot"])
+            # entities = sorted(token.entities, key=Entity.render_slot)
+            entities = sorted(token.entities, key=lambda x: x.render_slot)
             # Whitespace tokens disrupt the vertical space (no line height) so that the
             # span indicators get misaligned. We don't render them as individual
             # tokens anyway, so we'll just not display a span indicator either.
-            is_whitespace = token["text"].strip() == ""
+            is_whitespace = token.text.strip() == ""
             if entities and not is_whitespace:
-                slices = self._get_span_slices(token["entities"])
-                starts = self._get_span_starts(token["entities"])
+                slices = self._get_span_slices(token.entities)
+                starts = self._get_span_starts(token.entities)
                 total_height = (
                     self.top_offset
                     + self.span_label_offset
                     + (self.offset_step * (len(entities) - 1))
                 )
                 markup += self.span_template.format(
-                    text=escape_html(token["text"]),
+                    text=escape_html(token.text),
                     span_slices=slices,
                     span_starts=starts,
                     total_height=total_height,
                 )
             else:
-                markup += escape_html(token["text"] + " ")
+                markup += escape_html(token.text + " ")
         return markup
 
-    def _get_span_slices(self, entities: list[dict]) -> str:
+    def _get_span_slices(self, entities: list[Entity]) -> str:
         """Get the rendered markup of all Span slices"""
         span_slices = []
         for entity in entities:
@@ -275,10 +270,8 @@ class SpanRenderer:
             # to determine the vertical position, since that tells where
             # the span starts vertically so we can extend it horizontally,
             # past other spans that might have already ended
-            color = self.colors.get(entity["label"].upper(), self.default_color)
-            top_offset = self.top_offset + (
-                self.offset_step * (entity["render_slot"] - 1)
-            )
+            color = self.colors.get(entity.label.upper(), self.default_color)
+            top_offset = self.top_offset + (self.offset_step * (entity.render_slot - 1))
             span_slice = self.span_slice_template.format(
                 bg=color,
                 top_offset=top_offset,
@@ -286,22 +279,20 @@ class SpanRenderer:
             span_slices.append(span_slice)
         return "".join(span_slices)
 
-    def _get_span_starts(self, entities: list[dict]) -> str:
+    def _get_span_starts(self, entities: list[Entity]) -> str:
         """Get the rendered markup of all Span start tokens"""
         span_starts = []
         for entity in entities:
-            color = self.colors.get(entity["label"].upper(), self.default_color)
-            top_offset = self.top_offset + (
-                self.offset_step * (entity["render_slot"] - 1)
-            )
+            color = self.colors.get(entity.label.upper(), self.default_color)
+            top_offset = self.top_offset + (self.offset_step * (entity.render_slot - 1))
             span_start = (
                 self.span_start_template.format(
                     bg=color,
                     top_offset=top_offset,
-                    label=entity["label"],
-                    kb_link=entity["kb_link"],
+                    label=entity.label,
+                    kb_link=entity.kb_link,
                 )
-                if entity["is_start"]
+                if entity.is_start
                 else ""
             )
             span_starts.append(span_start)

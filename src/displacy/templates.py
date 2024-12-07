@@ -1,4 +1,3 @@
-
 TPL_FIGURE = """
 <figure style="margin-bottom: 6rem">{content}</figure>
 """

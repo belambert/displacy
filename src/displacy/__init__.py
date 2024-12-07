@@ -4,12 +4,14 @@ spaCy's built in visualization suite for dependencies and named entities.
 DOCS: https://spacy.io/api/top-level#displacy
 USAGE: https://spacy.io/usage/visualizers
 """
+
 import warnings
 from typing import Any, Callable, Iterable, Union
 
 from spacy.errors import Errors, Warnings
 from spacy.tokens import Doc, Span
 from spacy.util import find_available_port, is_in_jupyter
+
 from .render import SpanRenderer
 
 _html = {}

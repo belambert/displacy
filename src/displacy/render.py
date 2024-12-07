@@ -1,8 +1,8 @@
-import uuid
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional
 
 from spacy.errors import Errors
 from spacy.util import escape_html, minify_html, registry
+
 from .templates import (
     TPL_FIGURE,
     TPL_KB_LINK,
@@ -47,7 +47,7 @@ class SpanRenderer:
 
     style = "span"
 
-    def __init__(self, options: Dict[str, Any] = {}) -> None:
+    def __init__(self, options: dict[str, Any] = {}) -> None:
         """Initialise span renderer
 
         options (dict): Visualiser-specific options (colors, spans)
@@ -93,7 +93,7 @@ class SpanRenderer:
                 self.span_start_template = TPL_SPAN_START
 
     def render(
-        self, parsed: List[Dict[str, Any]], page: bool = False, minify: bool = False
+        self, parsed: list[dict[str, Any]], page: bool = False, minify: bool = False
     ) -> str:
         """Render complete markup.
 
@@ -121,8 +121,8 @@ class SpanRenderer:
 
     def render_spans(
         self,
-        tokens: List[str],
-        spans: List[Dict[str, Any]],
+        tokens: list[str],
+        spans: list[dict[str, Any]],
         title: Optional[str],
     ) -> str:
         """Render span types in text.
@@ -144,15 +144,15 @@ class SpanRenderer:
 
     @staticmethod
     def _assemble_per_token_info(
-        tokens: List[str], spans: List[Dict[str, Any]]
-    ) -> List[Dict[str, List[Dict[str, Any]]]]:
+        tokens: list[str], spans: list[dict[str, Any]]
+    ) -> list[dict[str, list[dict[str, Any]]]]:
         """Assembles token info used to generate markup in render_spans().
         tokens (List[str]): Tokens in text.
         spans (List[Dict[str, Any]]): Spans in text.
         RETURNS (List[Dict[str, List[Dict, str, Any]]]): Per token info needed to render HTML markup for given tokens
             and spans.
         """
-        per_token_info: List[Dict[str, List[Dict[str, Any]]]] = []
+        per_token_info: list[dict[str, list[dict[str, Any]]]] = []
 
         # we must sort so that we can correctly describe when spans need to "stack"
         # which is determined by their start token, then span length (longer spans on top),
@@ -174,9 +174,9 @@ class SpanRenderer:
         for idx, token in enumerate(tokens):
             # Identify if a token belongs to a Span (and which) and if it's a
             # start token of said Span. We'll use this for the final HTML render
-            token_markup: Dict[str, Any] = {}
+            token_markup: dict[str, Any] = {}
             token_markup["text"] = token
-            intersecting_spans: List[Dict[str, Any]] = []
+            intersecting_spans: list[dict[str, Any]] = []
             entities = []
             for span in spans:
                 ent = {}
@@ -213,7 +213,7 @@ class SpanRenderer:
 
         return per_token_info
 
-    def _render_markup(self, per_token_info: List[Dict[str, Any]]) -> str:
+    def _render_markup(self, per_token_info: list[dict[str, Any]]) -> str:
         """Render the markup from per-token information"""
         markup = ""
         for token in per_token_info:
@@ -240,7 +240,7 @@ class SpanRenderer:
                 markup += escape_html(token["text"] + " ")
         return markup
 
-    def _get_span_slices(self, entities: List[Dict]) -> str:
+    def _get_span_slices(self, entities: list[dict]) -> str:
         """Get the rendered markup of all Span slices"""
         span_slices = []
         for entity in entities:
@@ -259,7 +259,7 @@ class SpanRenderer:
             span_slices.append(span_slice)
         return "".join(span_slices)
 
-    def _get_span_starts(self, entities: List[Dict]) -> str:
+    def _get_span_starts(self, entities: list[dict]) -> str:
         """Get the rendered markup of all Span start tokens"""
         span_starts = []
         for entity in entities:

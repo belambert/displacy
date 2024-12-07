@@ -296,4 +296,5 @@ class SpanRenderer:
                 else ""
             )
             span_starts.append(span_start)
+        print(span_starts)
         return "".join(span_starts)

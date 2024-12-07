@@ -34,6 +34,9 @@ skip_gitignore = true
 
 [tool.pylint."messages control"]
 disable = [
+    "consider-using-f-string",
+    "duplicate-code",
+    "fixme",
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",

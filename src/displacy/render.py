@@ -1,11 +1,13 @@
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from spacy.errors import Errors
 from spacy.util import escape_html, minify_html, registry
 
-from .templates import (
+from displacy.model import Entity, TokenInfo
+
+from .templates import (  # TPL_KB_LINK,
     TPL_FIGURE,
-    TPL_KB_LINK,
     TPL_PAGE,
     TPL_SPAN,
     TPL_SPAN_RTL,
@@ -42,9 +44,21 @@ DEFAULT_LABEL_COLORS = {
 }
 
 
+@dataclass
 # pylint: disable-next=too-many-instance-attributes
 class SpanRenderer:
-    """Render Spans as SVGs."""
+    """Render Spans as HTML."""
+
+    colors: dict
+    top_offset: int
+    span_label_offset: int
+    offset_step: int
+    default_color: str = DEFAULT_ENTITY_COLOR
+    direction: str = DEFAULT_DIR
+    lang: str = DEFAULT_LANG
+    span_template: str = TPL_SPAN
+    span_slice_template: str = TPL_SPAN_SLICE
+    span_start_template: str = TPL_SPAN_START
 
     # pylint: disable-next=dangerous-default-value
     def __init__(self, options: dict[str, Any] = {}) -> None:
@@ -67,9 +81,6 @@ class SpanRenderer:
         self.default_color = DEFAULT_ENTITY_COLOR
         self.colors = {label.upper(): color for label, color in colors.items()}
 
-        # Set up how the text and labels will be rendered
-        self.direction = DEFAULT_DIR
-        self.lang = DEFAULT_LANG
         # These values are in px
         self.top_offset = options.get("top_offset", 40)
         # This is how far under the top offset the span labels appear
@@ -82,15 +93,10 @@ class SpanRenderer:
             self.span_template = template["span"]
             self.span_slice_template = template["slice"]
             self.span_start_template = template["start"]
-        else:
-            if self.direction == "rtl":
-                self.span_template = TPL_SPAN_RTL
-                self.span_slice_template = TPL_SPAN_SLICE_RTL
-                self.span_start_template = TPL_SPAN_START_RTL
-            else:
-                self.span_template = TPL_SPAN
-                self.span_slice_template = TPL_SPAN_SLICE
-                self.span_start_template = TPL_SPAN_START
+        elif self.direction == "rtl":
+            self.span_template = TPL_SPAN_RTL
+            self.span_slice_template = TPL_SPAN_SLICE_RTL
+            self.span_start_template = TPL_SPAN_START_RTL
 
     def render(
         self, parsed: list[dict[str, Any]], page: bool = False, minify: bool = False
@@ -102,6 +108,7 @@ class SpanRenderer:
         minify (bool): Minify HTML markup.
         RETURNS (str): Rendered SVG or HTML markup.
         """
+        # render each parse
         rendered = []
         for i, p in enumerate(parsed):
             if i == 0:
@@ -109,7 +116,7 @@ class SpanRenderer:
                 self.direction = settings.get("direction", DEFAULT_DIR)
                 self.lang = settings.get("lang", DEFAULT_LANG)
             rendered.append(self.render_spans(p["tokens"], p["spans"], p.get("title")))
-
+        # put it all together
         if page:
             docs = "".join([TPL_FIGURE.format(content=doc) for doc in rendered])
             markup = TPL_PAGE.format(content=docs, lang=self.lang, dir=self.direction)
@@ -142,6 +149,15 @@ class SpanRenderer:
             markup = TPL_TITLE.format(title=title) + markup
         return markup
 
+    # the return value from this function looks like this:
+    # {'text': 'Welcome', 'entities': []}
+    # {'text': 'to', 'entities': []}
+    # {'text': 'the', 'entities': []}
+    # {'text': 'Bank', 'entities': [{'label': 'ORG', 'is_start': True, 'render_slot': 1, 'kb_link': ''}]}
+    # {'text': 'of', 'entities': [{'label': 'ORG', 'is_start': False, 'render_slot': 1, 'kb_link': ''}]}
+    # {'text': 'China', 'entities': [{'label': 'ORG', 'is_start': False, 'render_slot': 1, 'kb_link': ''}, {'label': 'GPE', 'is_start': True, 'render_slot': 2, 'kb_link': ''}]}
+    # {'text': '.', 'entities': []}
+
     @staticmethod
     def _assemble_per_token_info(
         tokens: list[str], spans: list[dict[str, Any]]
@@ -171,6 +187,7 @@ class SpanRenderer:
             # vertical_position = span_label_offset + (offset_step * (slot - 1))
             s["render_slot"] = 0
 
+        # loops over the token
         for idx, token in enumerate(tokens):
             # Identify if a token belongs to a Span (and which) and if it's a
             # start token of said Span. We'll use this for the final HTML render
@@ -179,11 +196,11 @@ class SpanRenderer:
             intersecting_spans: list[dict[str, Any]] = []
             entities = []
             for span in spans:
-                ent = {}
+                # ent = {}
                 if span["start_token"] <= idx < span["end_token"]:
                     span_start = idx == span["start_token"]
-                    ent["label"] = span["label"]
-                    ent["is_start"] = span_start
+                    # ent["label"] = span["label"]
+                    # ent["is_start"] = span_start
                     if span_start:
                         # When the span starts, we need to know how many other
                         # spans are on the 'span stack' and will be rendered.
@@ -195,11 +212,18 @@ class SpanRenderer:
                             else 0
                         ) + 1
                     intersecting_spans.append(span)
-                    ent["render_slot"] = span["render_slot"]
-                    kb_id = span.get("kb_id", "")
-                    kb_url = span.get("kb_url", "#")
-                    ent["kb_link"] = (
-                        TPL_KB_LINK.format(kb_id=kb_id, kb_url=kb_url) if kb_id else ""
+                    # ent["render_slot"] = span["render_slot"]
+                    # kb_id = span.get("kb_id", "")
+                    # kb_url = span.get("kb_url", "#")
+                    # ent["kb_link"] = (
+                    #     TPL_KB_LINK.format(kb_id=kb_id, kb_url=kb_url) if kb_id else ""
+                    # )
+                    ent = Entity(
+                        label=span["label"],
+                        is_start=span_start,
+                        render_slot=span["render_slot"],
+                        kb_id=span.get("kb_id", ""),
+                        kb_url=span.get("kb_url", "#"),
                     )
                     entities.append(ent)
                 else:
@@ -210,8 +234,10 @@ class SpanRenderer:
                     # this value was reset correctly.
                     span["render_slot"] = 0
             token_markup["entities"] = entities
+            token_markup = TokenInfo(text=token, entities=entities)
             per_token_info.append(token_markup)
-
+        for token in per_token_info:
+            print(token)
         return per_token_info
 
     def _render_markup(self, per_token_info: list[dict[str, Any]]) -> str:

@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "displacy"
+version = "0.1.0"
+description = ""
+authors = ["Ben Lambert <blambert@gmail.com>"]
+readme = "README.md"
+packages = [{include = "displacy", from = "src"}]
+
+[tool.poetry.scripts]
+train = 'decoder_llm.train:cli'
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.13.0"
+pylint = "^3.3.2"
+black = "^24.10.0"
+isort = "^5.13.2"
+ruff = "^0.8.1"
+pytest = "^8.3.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+
+[tool.pylint."messages control"]
+disable = [
+    "consider-using-f-string",
+    "duplicate-code",
+    "fixme",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+]

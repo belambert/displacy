@@ -8,11 +8,54 @@ from spacy.util import find_available_port
 # see here:
 # https://docs.python.org/3/library/xml.html
 
+# the color could be specified with a class... (e.g. class=color-api-key, color-password)
+# the top offset could also be done with a class (e.g. class=level1, level2, etc.)
+# but we still need to set the ID based on other info
+
+
+CSS = """
+.token_span {
+    font-weight: bold;
+    display: inline-block;
+    position: relative;
+    height: 20px;
+}
+# this is the line for non-first tokens
+.span_slice {
+    height: 4px;
+    left: -1px;
+    width: calc(100% + 2px);
+    position: absolute;
+}
+# this is the line for the first token
+.span_start1 {
+    height: 4px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    left: -1px;
+    width: calc(100% + 2px);
+    position: absolute;
+}
+# this is where we put the label
+.span_start2 {
+    z-index: 10;
+    color: #000;
+    top: -0.5em;
+    padding: 2px 3px;
+    position: absolute;
+    font-size: 0.6em;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 3px
+}
+"""
+
 
 def get_token_span(token: str) -> ET.Element:
     span = ET.Element("span", attrib={"class": "token_span"})
     span.text = token
     return span
+
 
 # this one is just for the line
 def get_span_slice():
@@ -66,40 +109,6 @@ def get_token_spans() -> list[ET.Element]:
         token.tail = " "
         tokens.append(token)
     return tokens
-
-
-CSS = """
-.token_span {
-    font-weight: bold;
-    display: inline-block;
-    position: relative;
-    height: 20px;
-}
-.span_slice {
-    height: 4px;
-    left: -1px;
-    width: calc(100% + 2px);
-    position: absolute;
-}
-.span_start1 {
-    height: 4px;
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-    left: -1px; width: calc(100% + 2px);
-    position: absolute;
-}
-.span_start2 {
-    z-index: 10;
-    color: #000;
-    top: -0.5em;
-    padding: 2px 3px;
-    position: absolute;
-    font-size: 0.6em;
-    font-weight: bold;
-    line-height: 1;
-    border-radius: 3px
-}
-"""
 
 
 def get_wrapper():

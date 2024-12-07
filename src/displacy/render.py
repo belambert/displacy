@@ -149,6 +149,7 @@ class SpanRenderer:
             markup = TPL_TITLE.format(title=title) + markup
         return markup
 
+    # TODO want to understand this function better
     @staticmethod
     def _assemble_per_token_info(
         tokens: list[str], spans: list[dict[str, Any]]

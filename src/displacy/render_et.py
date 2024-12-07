@@ -262,6 +262,8 @@ class SpanRenderer:
                 markup += escape_html(token.text + " ")
         return markup
 
+    # TODO - next step would be to try to generate ET rather than strings...
+
     def _get_span_slices(self, entities: list[Entity]) -> str:
         """Get the rendered markup of all Span slices"""
         span_slices = []

@@ -1,16 +1,17 @@
 [tool.poetry]
-name = "template"
+name = "displacy"
 version = "0.1.0"
 description = ""
 authors = ["Ben Lambert <blambert@gmail.com>"]
 readme = "README.md"
-packages = [{include = "template", from = "src"}]
+packages = [{include = "displacy", from = "src"}]
 
 [tool.poetry.scripts]
 train = 'decoder_llm.train:cli'
 
 [tool.poetry.dependencies]
 python = "^3.11"
+spacy = "^3.8.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"

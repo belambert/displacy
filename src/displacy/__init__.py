@@ -5,7 +5,7 @@ DOCS: https://spacy.io/api/top-level#displacy
 USAGE: https://spacy.io/usage/visualizers
 """
 import warnings
-from typing import Any, Callable, Dict, Iterable, Optional, Union
+from typing import Any, Callable, Iterable, Union
 
 from spacy.errors import Errors, Warnings
 from spacy.tokens import Doc, Span
@@ -21,8 +21,7 @@ def render(
     style: str = "dep",
     page: bool = False,
     minify: bool = False,
-    jupyter: Optional[bool] = None,
-    options: Dict[str, Any] = {},
+    options: dict[str, Any] = {},
     manual: bool = False,
 ) -> str:
     """Render displaCy visualisation.
@@ -61,12 +60,6 @@ def render(
     html = _html["parsed"]
     if RENDER_WRAPPER is not None:
         html = RENDER_WRAPPER(html)
-    if jupyter or (jupyter is None and is_in_jupyter()):
-        # return HTML rendered by IPython display()
-        # See #4840 for details on span wrapper to disable mathjax
-        from IPython.core.display import HTML, display
-
-        return display(HTML('<span class="tex2jax_ignore">{}</span>'.format(html)))
     return html
 
 
@@ -75,7 +68,7 @@ def serve(
     style: str = "dep",
     page: bool = True,
     minify: bool = False,
-    options: Dict[str, Any] = {},
+    options: dict[str, Any] = {},
     manual: bool = False,
     port: int = 5000,
     host: str = "0.0.0.0",
@@ -122,8 +115,8 @@ def app(environ, start_response):
 
 
 def parse_deps(
-    orig_doc: Union[Doc, Span], options: Dict[str, Any] = {}
-) -> Dict[str, Any]:
+    orig_doc: Union[Doc, Span], options: dict[str, Any] = {}
+) -> dict[str, Any]:
     """Generate dependency parse in {'words': [], 'arcs': []} format.
 
     orig_doc (Union[Doc, Span]): Document to parse.
@@ -189,7 +182,7 @@ def parse_deps(
     return {"words": words, "arcs": arcs, "settings": get_doc_settings(orig_doc)}
 
 
-def parse_ents(doc: Doc, options: Dict[str, Any] = {}) -> Dict[str, Any]:
+def parse_ents(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
     """Generate named entities in [{start: i, end: i, label: 'label'}] format.
 
     doc (Doc): Document to parse.
@@ -214,7 +207,7 @@ def parse_ents(doc: Doc, options: Dict[str, Any] = {}) -> Dict[str, Any]:
     return {"text": doc.text, "ents": ents, "title": title, "settings": settings}
 
 
-def parse_spans(doc: Doc, options: Dict[str, Any] = {}) -> Dict[str, Any]:
+def parse_spans(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
     """Generate spans in [{start_token: i, end_token: i, label: 'label'}] format.
 
     doc (Doc): Document to parse.
@@ -268,7 +261,7 @@ def set_render_wrapper(func: Callable[[str], str]) -> None:
     RENDER_WRAPPER = func
 
 
-def get_doc_settings(doc: Doc) -> Dict[str, Any]:
+def get_doc_settings(doc: Doc) -> dict[str, Any]:
     return {
         "lang": doc.lang_,
         "direction": doc.vocab.writing_system.get("direction", "ltr"),

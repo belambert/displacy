@@ -5,8 +5,10 @@ DOCS: https://spacy.io/api/top-level#displacy
 USAGE: https://spacy.io/usage/visualizers
 """
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+
 import warnings
-from typing import Any, Callable, Iterable, Union
+from typing import Any, Iterable, Union
 
 from spacy.errors import Errors, Warnings
 from spacy.tokens import Doc, Span
@@ -15,7 +17,6 @@ from spacy.util import find_available_port, is_in_jupyter
 from .render import SpanRenderer
 
 _html = {}
-RENDER_WRAPPER = None
 
 
 # pylint: disable-next=dangerous-default-value
@@ -61,8 +62,6 @@ def render(
                 doc["ents"] = sorted(doc["ents"], key=lambda x: (x["start"], x["end"]))
     _html["parsed"] = renderer.render(parsed, page=page, minify=minify).strip()  # type: ignore
     html = _html["parsed"]
-    if RENDER_WRAPPER is not None:
-        html = RENDER_WRAPPER(html)
     return html
 
 
@@ -93,6 +92,7 @@ def serve(
     DOCS: https://spacy.io/api/top-level#displacy.serve
     USAGE: https://spacy.io/usage/visualizers
     """
+    # pylint: disable-next=import-outside-toplevel
     from wsgiref import simple_server
 
     port = find_available_port(port, host, auto_select_port)
@@ -111,14 +111,14 @@ def serve(
         httpd.server_close()
 
 
-def app(environ, start_response):
+def app(_environ, start_response):
     headers = [("Content-type", "text/html; charset=utf-8")]
     start_response("200 OK", headers)
     res = _html["parsed"].encode(encoding="utf-8")
     return [res]
 
 
-# pylint: disable-next=dangerous-default-value
+# pylint: disable-next=dangerous-default-value,too-many-locals
 def parse_deps(
     orig_doc: Union[Doc, Span], options: dict[str, Any] = {}
 ) -> dict[str, Any]:
@@ -249,23 +249,6 @@ def parse_spans(doc: Doc, options: dict[str, Any] = {}) -> dict[str, Any]:
         "settings": settings,
         "tokens": tokens,
     }
-
-
-def set_render_wrapper(func: Callable[[str], str]) -> None:
-    """Set an optional wrapper function that is called around the generated
-    HTML markup on displacy.render. This can be used to allow integration into
-    other platforms, similar to Jupyter Notebooks that require functions to be
-    called around the HTML. It can also be used to implement custom callbacks
-    on render, or to embed the visualization in a custom page.
-
-    func (callable): Function to call around markup before rendering it. Needs
-        to take one argument, the HTML markup, and should return the desired
-        output of displacy.render.
-    """
-    global RENDER_WRAPPER
-    if not hasattr(func, "__call__"):
-        raise ValueError(Errors.E110.format(obj=type(func)))
-    RENDER_WRAPPER = func
 
 
 def get_doc_settings(doc: Doc) -> dict[str, Any]:

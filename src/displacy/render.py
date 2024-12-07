@@ -190,6 +190,7 @@ class SpanRenderer:
                         # This value becomes the vertical render slot for this entire span
                         span["render_slot"] = (
                             intersecting_spans[-1]["render_slot"]
+                            # pylint: disable-next=use-implicit-booleaness-not-len
                             if len(intersecting_spans)
                             else 0
                         ) + 1

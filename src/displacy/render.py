@@ -5,7 +5,7 @@ from typing import Any
 from spacy.errors import Errors
 from spacy.util import escape_html, registry
 
-from displacy.makehtml import (
+from displacy.html import (
     get_div,
     get_span_line,
     get_span_start,

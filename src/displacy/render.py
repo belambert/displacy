@@ -20,6 +20,8 @@ from displacy.model import Entity, TokenInfo
 
 from .util import escape_html
 
+Doc = dict[str, Any]
+
 
 @dataclass
 # pylint: disable-next=too-many-instance-attributes
@@ -42,16 +44,6 @@ class SpanRenderer:
         """
         # Set up the colors and overall look
         colors = dict(DEFAULT_LABEL_COLORS)
-        # user_colors = registry.displacy_colors.get_all()
-        # for user_color in user_colors.values():
-        #     if callable(user_color):
-        #         # Since this comes from the function registry, we want to make
-        #         # sure we support functions that *return* a dict of colors
-        #         user_color = user_color()
-        #     if not isinstance(user_color, dict):
-        #         # raise ValueError(Errors.E925.format(obj=type(user_color)))
-        #         raise ValueError("error")
-        #     colors.update(user_color)
         colors.update(options.get("colors", {}))
         self.default_color = DEFAULT_ENTITY_COLOR
         self.colors = {label.upper(): color for label, color in colors.items()}
@@ -62,12 +54,7 @@ class SpanRenderer:
         self.span_label_offset = options.get("span_label_offset", 20)
         self.offset_step = options.get("top_offset_step", 17)
 
-    def render(
-        self,
-        parsed: Iterable[dict[str, Any]],
-        # page: bool = False,
-        # minify: bool = False,
-    ) -> str:
+    def render_dom(self, docs: Iterable[Doc]) -> ET.Element:
         """Render complete markup.
 
         parsed (list): Dependency parses to render.
@@ -77,22 +64,30 @@ class SpanRenderer:
         """
         # render each parse
         rendered = []
-        for i, p in enumerate(parsed):
+        for i, doc in enumerate(docs):
             if i == 0:
-                settings = p.get("settings", {})
+                settings = doc.get("settings", {})
                 self.direction = settings.get("direction", DEFAULT_DIR)
                 self.lang = settings.get("lang", DEFAULT_LANG)
-            rendered.append(
-                self.render_spans(p["tokens"], p["spans"])
-            )  # , p.get("title")))
+            rendered.append(self.render_spans(doc["tokens"], doc["spans"]))
 
         html, body = get_wrapper()
         body.extend(rendered)
-        html_str = ET.tostring(html, encoding="utf-8", method="html").decode("utf-8")
+        return html
 
-        # if minify:
-        #     return minify_html(markup)
-        return html_str
+    def render_html(
+        self,
+        parsed: Iterable[Doc],
+    ) -> str:
+        """Render complete markup.
+
+        parsed (list): Dependency parses to render.
+        page (bool): Render parses wrapped as full HTML page.
+        minify (bool): Minify HTML markup.
+        RETURNS (str): Rendered SVG or HTML markup.
+        """
+        dom = self.render_dom(parsed)
+        return ET.tostring(dom, encoding="utf-8", method="html").decode("utf-8")
 
     def render_spans(
         self,

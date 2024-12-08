@@ -1,9 +1,6 @@
 # pylint: disable=line-too-long
 
 import xml.etree.ElementTree as ET
-from wsgiref import simple_server
-
-from .util import find_available_port
 
 # see here:
 # https://docs.python.org/3/library/xml.html
@@ -116,7 +113,3 @@ def get_wrapper():
 #         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd",
 #     )
 #     return impl.createDocument("http://www.w3.org/1999/xhtml", "html", dt)
-
-
-if __name__ == "__main__":
-    main()

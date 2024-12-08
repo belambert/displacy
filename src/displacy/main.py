@@ -40,7 +40,6 @@ def render(
 # pylint: disable-next=dangerous-default-value
 def serve(
     docs: Union[Iterable[Doc], Doc],
-    style: str = "dep",
     # page: bool = True,
     # minify: bool = False,
     options: dict[str, Any] = {},
@@ -69,7 +68,6 @@ def serve(
     # render(docs, style=style, options=options, manual=manual)
     html = render(docs, options=options)
     httpd = simple_server.make_server(host, port, get_app(html))
-    print(f"\nUsing the '{style}' visualizer")
     print(f"Serving on http://{host}:{port} ...\n")
     try:
         httpd.serve_forever()

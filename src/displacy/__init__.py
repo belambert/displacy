@@ -14,7 +14,7 @@ from spacy.errors import Errors, Warnings
 from spacy.tokens import Doc, Span
 from spacy.util import find_available_port
 
-from .render_et import SpanRenderer
+from .render import SpanRenderer
 
 _html = {}
 
@@ -23,8 +23,8 @@ _html = {}
 def render(
     docs: Union[Iterable[Union[Doc, Span, dict]], Doc, Span, dict],
     style: str = "dep",
-    page: bool = False,
-    minify: bool = False,
+    # page: bool = False,
+    # minify: bool = False,
     options: dict[str, Any] = {},
     manual: bool = False,
 ) -> str:
@@ -59,7 +59,8 @@ def render(
         for doc in docs:
             if isinstance(doc, dict) and "ents" in doc:
                 doc["ents"] = sorted(doc["ents"], key=lambda x: (x["start"], x["end"]))
-    _html["parsed"] = renderer.render(parsed) # , page=page, minify=minify).strip()  # type: ignore
+    _html["parsed"] = renderer.render(parsed)  # type: ignore
+    # , page=page, minify=minify).strip()
     html = _html["parsed"]
     return html
 
@@ -68,8 +69,8 @@ def render(
 def serve(
     docs: Union[Iterable[Doc], Doc],
     style: str = "dep",
-    page: bool = True,
-    minify: bool = False,
+    # page: bool = True,
+    # minify: bool = False,
     options: dict[str, Any] = {},
     manual: bool = False,
     port: int = 5000,
@@ -95,7 +96,8 @@ def serve(
     from wsgiref import simple_server
 
     port = find_available_port(port, host, auto_select_port)
-    render(docs, style=style, page=page, minify=minify, options=options, manual=manual)
+    # render(docs, style=style, page=page, minify=minify, options=options, manual=manual)
+    render(docs, style=style, options=options, manual=manual)
     httpd = simple_server.make_server(host, port, app)
     print(f"\nUsing the '{style}' visualizer")
     print(f"Serving on http://{host}:{port} ...\n")

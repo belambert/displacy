@@ -3,7 +3,7 @@
 import xml.etree.ElementTree as ET
 from wsgiref import simple_server
 
-from spacy.util import find_available_port
+from .util import find_available_port
 
 # see here:
 # https://docs.python.org/3/library/xml.html

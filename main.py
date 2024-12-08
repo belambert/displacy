@@ -1,5 +1,5 @@
 
-from displacy import serve
+from displacy.main import serve
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
         "tokens": ["Welcome", "to", "the", "Bank", "of", "China", "."],
         }
 
-    serve(span_ex, style="span", auto_select_port=True, manual=True)
+    serve(span_ex, auto_select_port=True)
 
 if __name__ == "__main__":
     main()

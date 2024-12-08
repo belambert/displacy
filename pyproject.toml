@@ -11,7 +11,6 @@ train = 'decoder_llm.train:cli'
 
 [tool.poetry.dependencies]
 python = "^3.11"
-spacy = "^3.8.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"

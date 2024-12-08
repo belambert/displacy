@@ -1,10 +1,13 @@
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Iterable
 
-from spacy.errors import Errors
-from spacy.util import escape_html, registry
-
+from displacy.defaults import (
+    DEFAULT_DIR,
+    DEFAULT_ENTITY_COLOR,
+    DEFAULT_LABEL_COLORS,
+    DEFAULT_LANG,
+)
 from displacy.html import (
     get_div,
     get_span_line,
@@ -15,29 +18,7 @@ from displacy.html import (
 )
 from displacy.model import Entity, TokenInfo
 
-DEFAULT_LANG = "en"
-DEFAULT_DIR = "ltr"
-DEFAULT_ENTITY_COLOR = "#ddd"
-DEFAULT_LABEL_COLORS = {
-    "ORG": "#7aecec",
-    "PRODUCT": "#bfeeb7",
-    "GPE": "#feca74",
-    "LOC": "#ff9561",
-    "PERSON": "#aa9cfc",
-    "NORP": "#c887fb",
-    "FAC": "#9cc9cc",
-    "EVENT": "#ffeb80",
-    "LAW": "#ff8197",
-    "LANGUAGE": "#ff8197",
-    "WORK_OF_ART": "#f0d0ff",
-    "DATE": "#bfe1d9",
-    "TIME": "#bfe1d9",
-    "MONEY": "#e4e7d2",
-    "QUANTITY": "#e4e7d2",
-    "ORDINAL": "#e4e7d2",
-    "CARDINAL": "#e4e7d2",
-    "PERCENT": "#e4e7d2",
-}
+from .util import escape_html
 
 
 @dataclass
@@ -52,9 +33,6 @@ class SpanRenderer:
     default_color: str = DEFAULT_ENTITY_COLOR
     direction: str = DEFAULT_DIR
     lang: str = DEFAULT_LANG
-    # span_template: str = TPL_SPAN
-    # span_slice_template: str = TPL_SPAN_SLICE
-    # span_start_template: str = TPL_SPAN_START
 
     # pylint: disable-next=dangerous-default-value
     def __init__(self, options: dict[str, Any] = {}) -> None:
@@ -64,15 +42,16 @@ class SpanRenderer:
         """
         # Set up the colors and overall look
         colors = dict(DEFAULT_LABEL_COLORS)
-        user_colors = registry.displacy_colors.get_all()
-        for user_color in user_colors.values():
-            if callable(user_color):
-                # Since this comes from the function registry, we want to make
-                # sure we support functions that *return* a dict of colors
-                user_color = user_color()
-            if not isinstance(user_color, dict):
-                raise ValueError(Errors.E925.format(obj=type(user_color)))
-            colors.update(user_color)
+        # user_colors = registry.displacy_colors.get_all()
+        # for user_color in user_colors.values():
+        #     if callable(user_color):
+        #         # Since this comes from the function registry, we want to make
+        #         # sure we support functions that *return* a dict of colors
+        #         user_color = user_color()
+        #     if not isinstance(user_color, dict):
+        #         # raise ValueError(Errors.E925.format(obj=type(user_color)))
+        #         raise ValueError("error")
+        #     colors.update(user_color)
         colors.update(options.get("colors", {}))
         self.default_color = DEFAULT_ENTITY_COLOR
         self.colors = {label.upper(): color for label, color in colors.items()}
@@ -83,20 +62,9 @@ class SpanRenderer:
         self.span_label_offset = options.get("span_label_offset", 20)
         self.offset_step = options.get("top_offset_step", 17)
 
-        # Set up which templates will be used
-        # template = options.get("template")
-        # if template:
-        #     self.span_template = template["span"]
-        #     self.span_slice_template = template["slice"]
-        #     self.span_start_template = template["start"]
-        # elif self.direction == "rtl":
-        #     self.span_template = TPL_SPAN_RTL
-        #     self.span_slice_template = TPL_SPAN_SLICE_RTL
-        #     self.span_start_template = TPL_SPAN_START_RTL
-
     def render(
         self,
-        parsed: list[dict[str, Any]],
+        parsed: Iterable[dict[str, Any]],
         # page: bool = False,
         # minify: bool = False,
     ) -> str:

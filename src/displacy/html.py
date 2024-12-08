@@ -99,19 +99,6 @@ def get_div():
     return div
 
 
-# 3 tokens with one annotation...
-def get_token_spans() -> list[ET.Element]:
-    tokens = []
-    for i in range(3):
-        token = get_token_span("token")
-        token.append(get_span_line())
-        if i == 0:
-            token.append(get_span_start("label"))
-        token.tail = " "
-        tokens.append(token)
-    return tokens
-
-
 def get_wrapper():
     html = ET.Element("html")
     head = ET.SubElement(html, "head")
@@ -119,50 +106,6 @@ def get_wrapper():
     style.text = CSS
     body = ET.SubElement(html, "body")
     return html, body
-
-
-def main():
-
-    div = get_div()
-    # token_spans = list(get_token_spans() + get_token_spans())
-    token_spans = get_token_spans()
-    print(token_spans)
-    # div.extend(token_spans)
-    for token in token_spans:
-        div.append(token)
-
-    print(div)
-    print(list(div))
-
-    html, body = get_wrapper()
-    body.append(div)
-
-    html_str = ET.tostring(html, encoding="utf-8", method="html").decode("utf-8")
-
-    print(html_str)
-
-    host = "0.0.0.0"
-
-    port = find_available_port(5000, host, True)
-    httpd = simple_server.make_server(host, port, get_app(html_str))
-    print(f"Serving on http://{host}:{port} ...\n")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        print(f"Shutting down server on port {port}.")
-    finally:
-        httpd.server_close()
-
-
-def get_app(html: str):
-
-    def app(_environ, start_response):
-        headers = [("Content-type", "text/html; charset=utf-8")]
-        start_response("200 OK", headers)
-        res = html.encode(encoding="utf-8")
-        return [res]
-
-    return app
 
 
 # def getDOM() -> Document:

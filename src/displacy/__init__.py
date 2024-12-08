@@ -14,7 +14,7 @@ from spacy.errors import Errors, Warnings
 from spacy.tokens import Doc, Span
 from spacy.util import find_available_port
 
-from .render import SpanRenderer
+from .render_et import SpanRenderer
 
 _html = {}
 
@@ -59,7 +59,7 @@ def render(
         for doc in docs:
             if isinstance(doc, dict) and "ents" in doc:
                 doc["ents"] = sorted(doc["ents"], key=lambda x: (x["start"], x["end"]))
-    _html["parsed"] = renderer.render(parsed, page=page, minify=minify).strip()  # type: ignore
+    _html["parsed"] = renderer.render(parsed) # , page=page, minify=minify).strip()  # type: ignore
     html = _html["parsed"]
     return html
 

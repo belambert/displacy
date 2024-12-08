@@ -14,20 +14,25 @@ from spacy.util import find_available_port
 
 
 CSS = """
+body {
+    font-size: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    padding: 4rem 2rem;
+    direction: ltr;
+}
 .token_span {
     font-weight: bold;
     display: inline-block;
     position: relative;
-    height: 20px;
 }
-# this is the line for non-first tokens
-.span_slice {
+/* this is the line for non-first tokens */
+.span_line {
     height: 4px;
     left: -1px;
     width: calc(100% + 2px);
     position: absolute;
 }
-# this is the line for the first token
+/* this is the line for the first token? */
 .span_start1 {
     height: 4px;
     border-top-left-radius: 3px;
@@ -36,7 +41,7 @@ CSS = """
     width: calc(100% + 2px);
     position: absolute;
 }
-# this is where we put the label
+/* this is where we put the label */
 .span_start2 {
     z-index: 10;
     color: #000;
@@ -51,50 +56,47 @@ CSS = """
 """
 
 
-def get_token_span(token: str) -> ET.Element:
+def get_unann_span(token: str) -> ET.Element:
+    span = ET.Element("span")
+    span.text = token
+    return span
+
+
+def get_token_span(token: str, height: int = 60) -> ET.Element:
     span = ET.Element("span", attrib={"class": "token_span"})
+    span.set("style", "height: {height};".format(height=height))
     span.text = token
     return span
 
 
 # this one is just for the line
-def get_span_slice():
-    span = ET.Element("span", attrib={"class": "span_slice"})
+def get_span_line(color: str = "#7aecec", top=40):
+    span = ET.Element("span", attrib={"class": "span_line"})
     span.set(
         "style",
-        "background: {bg}; top: {top_offset}px;".format(bg="#7aecec", top_offset=40),
+        "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
     )
     return span
 
 
-def get_span_start(label: str):
+def get_span_start(label: str, color: str = "#7aecec", top=40):
     span = ET.Element("span", attrib={"class": "span_start1"})
     span.set(
         "style",
-        "background: {bg}; top: {top_offset}px;".format(bg="#7aecec", top_offset=40),
+        "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
     )
     subspan = ET.SubElement(span, "span", attrib={"class": "span_start2"})
-    subspan.set("style", "background: {bg};".format(bg="#7aecec"))
+    subspan.set("style", "background: {bg};".format(bg=color))
     subspan.text = label
     return span
 
 
 def get_div():
     div = ET.Element("div")
-    div.set("style", "line-height: 2.5; direction: {dir}")
+    # div.set("style", "line-height: 2.5; direction: {dir}")
+    div.set("style", "line-height: 2.5; direction: ltr")
     div.set("class", "spans")
     return div
-
-
-# each token annotated...
-# def get_token_spans() -> list[ET.Element]:
-#     tokens =[]
-#     for i in range(5):
-#         token = get_token_span("token")
-#         token.append(get_span_start("label"))
-#         token.tail = " "
-#         tokens.append(token)
-#     return tokens
 
 
 # 3 tokens with one annotation...
@@ -102,10 +104,9 @@ def get_token_spans() -> list[ET.Element]:
     tokens = []
     for i in range(3):
         token = get_token_span("token")
+        token.append(get_span_line())
         if i == 0:
             token.append(get_span_start("label"))
-        else:
-            token.append(get_span_slice())
         token.tail = " "
         tokens.append(token)
     return tokens
@@ -123,12 +124,20 @@ def get_wrapper():
 def main():
 
     div = get_div()
-    div.extend(get_token_spans() + get_token_spans())
+    # token_spans = list(get_token_spans() + get_token_spans())
+    token_spans = get_token_spans()
+    print(token_spans)
+    # div.extend(token_spans)
+    for token in token_spans:
+        div.append(token)
+
+    print(div)
+    print(list(div))
 
     html, body = get_wrapper()
     body.append(div)
 
-    html_str = ET.tostring(html, encoding="utf-8").decode("utf-8")
+    html_str = ET.tostring(html, encoding="utf-8", method="html").decode("utf-8")
 
     print(html_str)
 

@@ -10,8 +10,8 @@ import xml.etree.ElementTree as ET
 # but we still need to set the ID based on other info
 
 
-# counter-reset: ex-counter 0;
-# counter-increment: ex-counter 1;
+#
+#
 # direction: ltr;
 
 CSS = """
@@ -19,10 +19,11 @@ body {
     font-size: 16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     padding: 4rem 2rem;
+    counter-reset: counter 0;
 }
-.spans {
-    line-height: 1.5 !important;
-    font-family: monospace !important;
+div {
+    line-height: 2.5;
+    font-family: monospace;
     list-style-type: none;
 }
 .label {
@@ -64,11 +65,12 @@ body {
 .sublabel {
     text-decoration: none;
     color: inherit;
-    font-weight: normal
+    font-weight: normal;
+    margin-left: 4px;
 }
 .space {
     display: inline-block;
-    width: 1em;
+    width: 0.5em;
 }
 .unselectable {
     -webkit-touch-callout: none;
@@ -79,8 +81,13 @@ body {
     user-select: none;
 }
 figure {
-    margin-bottom: 6rem;
+    margin-bottom: 4rem;
     border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+}
+figcaption:before {
+    counter-increment: counter 1;
+    content: counter(counter) ". ";
 }
 """
 
@@ -109,38 +116,46 @@ def get_span_line(color: str, top: int):
 
 
 def get_span_start(label: str, color: str, top: int):
-    span = ET.Element("span", attrib={"class": "span_start1"})
+    span = ET.Element("span", attrib={"class": "span_start1 unselectable"})
     span.set(
         "style",
         "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
     )
-    subspan = ET.SubElement(span, "span", attrib={"class": "span_start2"})
+    subspan = ET.SubElement(span, "span", attrib={"class": "span_start2 unselectable"})
     subspan.set("style", "background: {bg};".format(bg=color))
     subspan.text = label
     return span
 
 
-# these two for class version
-def get_span_line2(tag: str, top: int):
-    span = ET.Element("span", attrib={"class": f"span_line {tag}"})
-    span.set("style", "top: {top_offset}px;".format(top_offset=top))
+# TODO - for a solid line, we'd need to have an annotated space version of this
+def get_space() -> ET.Element:
+    span = ET.Element("span", attrib={"class": "space"})
+    span.text = " "
     return span
 
 
-def get_span_start2(label: str, color: str, top: int):
-    span = ET.Element("span", attrib={"class": "span_start1"})
-    span.set(
-        "style",
-        "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
-    )
-    subspan = ET.SubElement(span, "span", attrib={"class": "span_start2"})
-    subspan.set("style", "background: {bg};".format(bg=color))
-    subspan.text = label
-    return span
+# # these two for class version
+# def get_span_line2(tag: str, top: int):
+#     span = ET.Element("span", attrib={"class": f"span_line {tag}"})
+#     span.set("style", "top: {top_offset}px;".format(top_offset=top))
+#     return span
+
+
+# def get_span_start2(label: str, color: str, top: int):
+#     span = ET.Element("span", attrib={"class": "span_start1"})
+#     span.set(
+#         "style",
+#         "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
+#     )
+#     subspan = ET.SubElement(span, "span", attrib={"class": "span_start2"})
+#     subspan.set("style", "background: {bg};".format(bg=color))
+#     subspan.text = label
+#     return span
 
 
 def get_figure():
     figure = ET.Element("figure")
+    ET.SubElement(figure, "figcaption")
     div = ET.SubElement(figure, "div", attrib={"class": "spans"})
     return figure, div
 

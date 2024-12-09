@@ -10,6 +10,7 @@ from displacy.defaults import (
 )
 from displacy.html import (  # get_span_line2,
     get_figure,
+    get_space,
     get_span_line,
     get_span_start,
     get_token_span,
@@ -58,6 +59,7 @@ class SpanRenderer:
     def render_html(self, parsed: Iterable[Doc]) -> str:
         dom = self.render_dom(parsed)
         html = ET.tostring(dom, encoding="utf-8", method="html", xml_declaration=True)
+        print(len(html))
         return f"<!DOCTYPE html>\n{html.decode('utf-8')}"
 
     def render_doc(self, doc: Doc) -> ET.Element:
@@ -160,7 +162,7 @@ class SpanRenderer:
                 if token.text == "\n":
                     span = ET.Element("br")
                 elif token.text == " ":
-                    span = ET.Element("span", attrib={"class": "space"})
+                    span = get_space()
                 else:
                     span = get_unann_span(token.text)
                 # span.tail = " "

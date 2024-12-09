@@ -57,7 +57,8 @@ class SpanRenderer:
 
     def render_html(self, parsed: Iterable[Doc]) -> str:
         dom = self.render_dom(parsed)
-        return ET.tostring(dom, encoding="utf-8", method="html").decode("utf-8")
+        html = ET.tostring(dom, encoding="utf-8", method="html", xml_declaration=True)
+        return f"<!DOCTYPE html>\n{html.decode('utf-8')}"
 
     def render_doc(self, doc: Doc) -> ET.Element:
         per_token_info = self._assemble_per_token_info(doc["tokens"], doc["spans"])

@@ -30,9 +30,9 @@ def render(
     if not all(isinstance(obj, dict) for obj in docs):
         raise ValueError("bad input")
     renderer = SpanRenderer(options=options)
-    for doc in docs:
-        if isinstance(doc, dict) and "ents" in doc:
-            doc["ents"] = sorted(doc["ents"], key=lambda x: (x["start"], x["end"]))
+    # for doc in docs:
+    #     if isinstance(doc, dict) and "ents" in doc:
+    #         doc["ents"] = sorted(doc["ents"], key=lambda x: (x["start"], x["end"]))
     return renderer.render_html(docs)
 
 

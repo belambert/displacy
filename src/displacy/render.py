@@ -62,9 +62,9 @@ class SpanRenderer:
     def render_doc(self, doc: Doc) -> ET.Element:
         per_token_info = self._assemble_per_token_info(doc["tokens"], doc["spans"])
         et_tokens = self._render_markup(per_token_info)
-        div = get_figure()
+        figure, div = get_figure()
         div.extend(et_tokens)
-        return div
+        return figure
 
     @staticmethod
     def _assemble_per_token_info(

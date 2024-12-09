@@ -21,7 +21,7 @@ body {
     padding: 4rem 2rem;
 }
 .spans {
-    line-height: 2.5 !important;
+    line-height: 1.5 !important;
     font-family: monospace !important;
     list-style-type: none;
 }
@@ -142,7 +142,7 @@ def get_span_start2(label: str, color: str, top: int):
 def get_figure():
     figure = ET.Element("figure")
     div = ET.SubElement(figure, "div", attrib={"class": "spans"})
-    return div
+    return figure, div
 
 
 def get_wrapper():

@@ -10,7 +10,7 @@ packages = [{include = "displacy", from = "src"}]
 train = 'decoder_llm.train:cli'
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.10,<4.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"

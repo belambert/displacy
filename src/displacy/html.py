@@ -55,6 +55,10 @@ body {
     color: inherit;
     font-weight: normal
 }
+.space {
+    display: inline-block;
+    width: 1em;
+}
 """
 
 

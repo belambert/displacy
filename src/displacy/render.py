@@ -158,6 +158,8 @@ class SpanRenderer:
                 # span = get_unann_span(escape_html(token.text))
                 if token.text == "\n":
                     span = ET.Element("br")
+                elif token.text == " ":
+                    span = ET.Element("span", attrib={"class": "space"})
                 else:
                     span = get_unann_span(token.text)
                 # span.tail = " "

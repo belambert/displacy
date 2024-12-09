@@ -18,8 +18,6 @@ from displacy.html import (  # get_span_line2,
 )
 from displacy.model import Entity, TokenInfo
 
-from .util import escape_html
-
 Doc = dict[str, Any]
 
 
@@ -158,13 +156,10 @@ class SpanRenderer:
                 tokens.append(token_span)
             else:
                 # span = get_unann_span(escape_html(token.text))
-                if token.text == " ":
-                    text = "&nbsp;"
-                elif token.text == "\n":
-                    text = "<br/>"
+                if token.text == "\n":
+                    span = ET.Element("br")
                 else:
-                    text = token.text
-                span = get_unann_span(text)
+                    span = get_unann_span(token.text)
                 # span.tail = " "
                 tokens.append(span)
 

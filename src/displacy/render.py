@@ -38,10 +38,6 @@ class SpanRenderer:
 
     # pylint: disable-next=dangerous-default-value
     def __init__(self, options: dict[str, Any] = {}) -> None:
-        """Initialise span renderer
-
-        options (dict): Visualiser-specific options (colors, spans)
-        """
         # Set up the colors and overall look
         colors = dict(DEFAULT_LABEL_COLORS)
         colors.update(options.get("colors", {}))
@@ -55,57 +51,18 @@ class SpanRenderer:
         self.offset_step = options.get("top_offset_step", 17)
 
     def render_dom(self, docs: Iterable[Doc]) -> ET.Element:
-        """Render complete markup.
-
-        parsed (list): Dependency parses to render.
-        page (bool): Render parses wrapped as full HTML page.
-        minify (bool): Minify HTML markup.
-        RETURNS (str): Rendered SVG or HTML markup.
-        """
         # render each parse
-        rendered = []
-        for i, doc in enumerate(docs):
-            if i == 0:
-                settings = doc.get("settings", {})
-                self.direction = settings.get("direction", DEFAULT_DIR)
-                self.lang = settings.get("lang", DEFAULT_LANG)
-            rendered.append(self.render_spans(doc["tokens"], doc["spans"]))
-
+        rendered = list(map(self.render_doc, docs))
         html, body = get_wrapper()
         body.extend(rendered)
         return html
 
-    def render_html(
-        self,
-        parsed: Iterable[Doc],
-    ) -> str:
-        """Render complete markup.
-
-        parsed (list): Dependency parses to render.
-        page (bool): Render parses wrapped as full HTML page.
-        minify (bool): Minify HTML markup.
-        RETURNS (str): Rendered SVG or HTML markup.
-        """
+    def render_html(self, parsed: Iterable[Doc]) -> str:
         dom = self.render_dom(parsed)
         return ET.tostring(dom, encoding="utf-8", method="html").decode("utf-8")
 
-    def render_spans(
-        self,
-        tokens: list[str],
-        spans: list[dict[str, Any]],
-        # title: Optional[str],
-    ) -> str:
-        """Render span types in text.
-
-        Spans are rendered per-token, this means that for each token, we check if it's part
-        of a span slice (a member of a span type) or a span start (the starting token of a
-        given span type).
-
-        tokens (list): Individual tokens in the text
-        spans (list): Individual entity spans and their start, end, label, kb_id and kb_url.
-        title (str / None): Document title set in Doc.user_data['title'].
-        """
-        per_token_info = self._assemble_per_token_info(tokens, spans)
+    def render_doc(self, doc: Doc) -> ET.Element:
+        per_token_info = self._assemble_per_token_info(doc["tokens"], doc["spans"])
         et_tokens = self._render_markup(per_token_info)
         div = get_div()
         div.extend(et_tokens)
@@ -115,12 +72,7 @@ class SpanRenderer:
     def _assemble_per_token_info(
         tokens: list[str], spans: list[dict[str, Any]]
     ) -> list[TokenInfo]:
-        """Assembles token info used to generate markup in render_spans().
-        tokens (List[str]): Tokens in text.
-        spans (List[Dict[str, Any]]): Spans in text.
-        RETURNS (List[Dict[str, List[Dict, str, Any]]]): Per token info needed
-            to render HTML markup for given tokens and spans.
-        """
+        """Assembles token info used to generate markup in render_spans()."""
         per_token_info = []
 
         # we must sort so that we can correctly describe when spans need to "stack"
@@ -165,9 +117,8 @@ class SpanRenderer:
                         label=span["label"],
                         is_start=span_start,
                         render_slot=span["render_slot"],
-                        kb_id=span.get("kb_id", ""),
-                        kb_url=span.get("kb_url", "#"),
-                        kb_link="",
+                        sublabel=span.get("sublabel"),
+                        tags=span.get("tags"),
                     )
                     entities.append(ent)
                 else:
@@ -228,5 +179,13 @@ class SpanRenderer:
             color = self.colors.get(entity.label.upper(), self.default_color)
             top_offset = self.top_offset + (self.offset_step * (entity.render_slot - 1))
             if entity.is_start:
-                span_starts.append(get_span_start(entity.label, color, top_offset))
+                label_elt = get_span_start(entity.label, color, top_offset)
+                if entity.sublabel:
+                    sublabel = ET.Element("span", attrib={"class": "sublabel"})
+                    sublabel.text = entity.sublabel
+                    # this seems to work
+                    label_elt[0].append(sublabel)
+                if entity.tags:
+                    label_elt.attrib["title"] = ", ".join(entity.tags)
+                span_starts.append(label_elt)
         return span_starts

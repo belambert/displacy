@@ -50,6 +50,11 @@ body {
     line-height: 1;
     border-radius: 3px
 }
+.sublabel {
+    text-decoration: none;
+    color: inherit;
+    font-weight: normal
+}
 """
 
 

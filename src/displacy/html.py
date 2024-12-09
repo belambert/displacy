@@ -10,19 +10,20 @@ import xml.etree.ElementTree as ET
 # but we still need to set the ID based on other info
 
 
+# counter-reset: ex-counter 0;
+# counter-increment: ex-counter 1;
+# direction: ltr;
+
 CSS = """
 body {
     font-size: 16px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     padding: 4rem 2rem;
-    direction: ltr;
-    counter-reset: ex-counter 0;
 }
 .spans {
     line-height: 1.5 !important;
     font-family: monospace !important;
     list-style-type: none;
-    counter-increment: ex-counter 1;
 }
 .label {
     white-space: nowrap;
@@ -78,6 +79,7 @@ body {
     user-select: none;
 }
 figure {
+    margin-bottom: 6rem
     border-bottom: 1px solid #ccc;
 }
 """
@@ -137,12 +139,14 @@ def get_span_start2(label: str, color: str, top: int):
     return span
 
 
-def get_div():
-    div = ET.Element("div")
-    # div.set("style", "line-height: 2.5; direction: {dir}")
-    div.set("style", "line-height: 2.5; direction: ltr")
-    div.set("class", "spans")
+def get_figure():
+    figure = ET.Element("figure")
+    div = ET.SubElement(figure, "div", attrib={"class": "spans"})
     return div
+    # # div.set("style", "line-height: 2.5; direction: {dir}")
+    # div.set("style", "line-height: 2.5; direction: ltr")
+    # div.set("class", "spans")
+    # return div
 
 
 def get_wrapper():

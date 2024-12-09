@@ -9,7 +9,7 @@ from displacy.defaults import (
     DEFAULT_LANG,
 )
 from displacy.html import (  # get_span_line2,
-    get_div,
+    get_figure,
     get_span_line,
     get_span_start,
     get_token_span,
@@ -62,7 +62,7 @@ class SpanRenderer:
     def render_doc(self, doc: Doc) -> ET.Element:
         per_token_info = self._assemble_per_token_info(doc["tokens"], doc["spans"])
         et_tokens = self._render_markup(per_token_info)
-        div = get_div()
+        div = get_figure()
         div.extend(et_tokens)
         return div
 

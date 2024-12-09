@@ -158,7 +158,13 @@ class SpanRenderer:
                 tokens.append(token_span)
             else:
                 # span = get_unann_span(escape_html(token.text))
-                span = get_unann_span(token.text)
+                if token.text == " ":
+                    text = "&nbsp;"
+                elif token.text == "\n":
+                    text = "<br/>"
+                else:
+                    text = token.text
+                span = get_unann_span(text)
                 # span.tail = " "
                 tokens.append(span)
 

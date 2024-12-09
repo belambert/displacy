@@ -92,6 +92,26 @@ def get_span_start(label: str, color: str, top: int):
     subspan.text = label
     return span
 
+# these two for class version
+def get_span_line2(tag: str, top: int):
+    span = ET.Element("span", attrib={"class": f"span_line {tag}"})
+    span.set(
+        "style",
+        "top: {top_offset}px;".format(top_offset=top)
+    )
+    return span
+
+
+def get_span_start2(label: str, color: str, top: int):
+    span = ET.Element("span", attrib={"class": "span_start1"})
+    span.set(
+        "style",
+        "background: {bg}; top: {top_offset}px;".format(bg=color, top_offset=top),
+    )
+    subspan = ET.SubElement(span, "span", attrib={"class": "span_start2"})
+    subspan.set("style", "background: {bg};".format(bg=color))
+    subspan.text = label
+    return span
 
 def get_div():
     div = ET.Element("div")

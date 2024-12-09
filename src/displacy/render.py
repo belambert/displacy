@@ -8,7 +8,7 @@ from displacy.defaults import (
     DEFAULT_LABEL_COLORS,
     DEFAULT_LANG,
 )
-from displacy.html import (
+from displacy.html import (  # get_span_line2,
     get_div,
     get_span_line,
     get_span_line2,
@@ -169,8 +169,8 @@ class SpanRenderer:
         for entity in entities:
             color = self.colors.get(entity.label.upper(), self.default_color)
             top_offset = self.top_offset + (self.offset_step * (entity.render_slot - 1))
-            # span_line = get_span_line(color, top_offset)
-            span_line = get_span_line2(entity.render_slot, top_offset)
+            span_line = get_span_line(color, top_offset)
+            # span_line = get_span_line2(entity.render_slot, top_offset)
             span_lines.append(span_line)
         return span_lines
 

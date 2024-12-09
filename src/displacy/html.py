@@ -72,7 +72,7 @@ def get_token_span(token: str, height: int = 60) -> ET.Element:
 
 
 # this one is just for the line
-def get_span_line(color: str = "#7aecec", top=40):
+def get_span_line(color: str, top: int):
     span = ET.Element("span", attrib={"class": "span_line"})
     span.set(
         "style",
@@ -81,7 +81,7 @@ def get_span_line(color: str = "#7aecec", top=40):
     return span
 
 
-def get_span_start(label: str, color: str = "#7aecec", top=40):
+def get_span_start(label: str, color: str, top: int):
     span = ET.Element("span", attrib={"class": "span_start1"})
     span.set(
         "style",

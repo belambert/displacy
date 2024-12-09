@@ -16,6 +16,16 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     padding: 4rem 2rem;
     direction: ltr;
+    counter-reset: ex-counter 0;
+}
+.spans {
+    line-height: 1.5 !important;
+    font-family: monospace !important;
+    list-style-type: none;
+    counter-increment: ex-counter 1;
+}
+.label {
+    white-space: nowrap;
 }
 .token_span {
     font-weight: bold;
@@ -58,6 +68,17 @@ body {
 .space {
     display: inline-block;
     width: 1em;
+}
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+figure {
+    border-bottom: 1px solid #ccc;
 }
 """
 

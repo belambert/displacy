@@ -13,7 +13,7 @@ train = 'decoder_llm.train:cli'
 python = ">=3.10,<4.0"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.13.0"
+mypy = "^1.14.1"
 pylint = "^3.3.3"
 black = "^24.10.0"
 isort = "^5.13.2"
